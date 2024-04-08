@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <script>
+    // context.closePath()
+    // 作用是在stroke描边之前闭合路径，将路径的最后位置和起始位置相连，形成闭合区域
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // 开始路径
+    context.beginPath();
+    context.strokeStyle = 'blue';
+    context.moveTo(60, 20);
+    context.lineTo(220, 20);
+    // context.stroke();
+
+    context.lineTo(160, 60);
+    // 先闭合再描边，不然起止未连上时已经描边，结果也是未闭合
+    context.closePath()
+    context.stroke();
+
+
+    // 开始路径
+    context.beginPath();
+    context.strokeStyle = 'blue';
+    context.moveTo(60, 80);
+    context.lineTo(220, 80);
+    // context.stroke();
+
+    context.lineTo(160, 120);
+    context.stroke();
+  </script>
+</body>
+</html>

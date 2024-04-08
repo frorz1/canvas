@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  canvas {
+    background:green;
+    width: 100px;
+    height: 50px;
+  }
+</style>
+<body>
+  <canvas></canvas>
+  <img id="img" src="" alt="">
+  <script>
+    // canvas的本质是一张图片，表现形式很多和img类似。如果宽高缺省，则会使用默认宽高 300*150
+    // 关于宽高的特性有一下几种
+    // 1、如果在标签上设置了width,height,css没有设置，则按照标签属性渲染，否则按css为准
+    // 2、如果只设置了width或者height中的一个（无论是css还是标签属性），则另一个会按照300*150的默认比例进行缩放，这一特性与img不同
+    // 3、标签属性无论设置的是20px, 20em, 20rem，最终结果都是20像素，并且会忽略小数，如20.5px === 20px, 而css属性则没有此规则
+    // 4、即便css改变了canvas的宽高，但是js在绘制的时候仍要按照canvas的标签属性 width和height进行绘制，如果没有设置，则默认300*150
+    // 5、console.log(canvas.width, canvas.height) 获取的永远是标签属性的宽高，默认300*150，与css无关
+    const canvas = document.querySelector('canvas')
+    const context = canvas.getContext('2d')
+
+    // 根据第4个规则，如果我们在在canvas的中心画一个圆，则以css的宽高，那么中心点应为(100, 50), 半径为50，但结果并未在画布中心
+    context.beginPath()
+    context.fillStyle = 'orange'
+    context.arc(50, 25, 25, 0, Math.PI * 2)
+    context.fill()
+    context.closePath()
+
+    // 如果以标签属性宽高为基准，则在画布中心。也就是说，canvas先在300*150的画布上绘制，再缩放到css所设置的width height上
+    context.beginPath()
+    context.fillStyle = '#000'
+    context.arc(150, 75, 75, 0, Math.PI * 2)
+    context.fill()
+    context.closePath()
+
+    const dataUrl = canvas.toDataURL('image/jpeg')
+
+    const img = document.querySelector('#img')
+    img.setAttribute('src', dataUrl)
+    
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+    .mark {
+        position: absolute;
+        clip: rect(0,0,0,0);
+    }
+</style>
+<body>
+  <input type="file" name="选择背景" id="file">
+  <input type="file" name="选择水印" id="file2">
+  <script>
+    const markImg = new Image()
+    const fileUploader = document.querySelector('#file')
+    const markUploader = document.querySelector('#file2')
+    const reader = new FileReader()
+    const bgImg = new Image()
+    const canvas = document.createElement('canvas')
+    const context = canvas.getContext('2d')
+
+    Promise.all([bgImg, markImg].map(item => {
+        return new Promise(resolve => {
+            item.onload = resolve
+        })
+    })).then(() => {
+        canvas.width = bgImg.width
+        canvas.height = bgImg.height
+        // 654 1102
+        context.drawImage(bgImg, 0, 0, bgImg.width, bgImg.height)
+        context.globalAlpha = 1
+        context.drawImage(markImg, bgImg.width - 60, bgImg.height - 60, 50, 50)
+
+        const url = canvas.toDataURL('image/png')
+        const watermarkImg = new Image()
+        watermarkImg.src = url
+        document.body.appendChild(watermarkImg)
+    })
+    // img.crossOrigin = 'Anonymous'
+    
+    fileUploader.addEventListener('change', function (e) {
+        const file = e.target.files[0]
+        reader.onload = function (e) {
+            // bgUrl = dataUrl
+            const base64 = e.target.result
+            // 判断尺寸,略过
+            bgImg.src = base64
+        }
+        reader.readAsDataURL(file)
+    })
+
+    markUploader.addEventListener('change', function (e) {
+        const file = e.target.files[0]
+        reader.onload = function (e) {
+            // bgUrl = dataUrl
+            const base64 = e.target.result
+            // 判断尺寸,略过
+            markImg.src = base64
+        }
+        reader.readAsDataURL(file)
+    })
+  </script>
+</body>
+</html>

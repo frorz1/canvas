@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  canvas {
+    border: 1px solid #000
+  }
+</style>
+<body>
+  <canvas width="800" height="600"></canvas>
+  <script>
+    class Ball {
+      constructor (x, y) {
+        this.x = x
+        this.y = y
+        // 随机给小球一个爆炸延伸的方向
+        this.angle = Math.random() * (Math.PI * 2)
+        // 假设角度是30deg, 我们在随机给定一个三角形斜边的长度，这样就可以得到x, y方向的加速度
+        this.dx = this.getRandom(5, 15) * Math.cos(this.angle)
+        this.dy = this.getRandom(5, 15) * Math.sin(this.angle)
+        this.color = this.getRandomColor()
+        this.r = this.getRandom(10, 15)
+      }
+
+      move () {
+        this.x += this.dx
+        this.y += this.dy
+        // 逐渐变小
+        this.r -= 0.3
+        // 让球的速度逐渐下降，直到球静止下来，半径渐渐缩小后慢慢消失
+        this.dx *= 0.9
+        this.dy *= 0.9
+      }
+      
+      getRandom (min, max) {
+        return Math.random() * max + min
+      }
+      
+      getRandomColor () {
+        const r = Math.floor(255 * Math.random())
+        const g = Math.floor(255 * Math.random())
+        const b = Math.floor(255 * Math.random())
+        return `rgb(${r}, ${g}, ${b})`
+      }
+    }
+    // 创建小球
+    class BoomBall {
+      constructor (el, options) {
+        this.el = typeof el === 'string' ? document.querySelector(el) : el
+        this.options = options || {}
+        this.ballList = []
+        this.init()
+        this.raf = null
+      }
+      
+      init () {
+        if (this.el.getContext) {
+          const ctx = this.el.getContext('2d')
+          const { count } = this.options
+          this.el.addEventListener('click', (e) => {
+            window.cancelAnimationFrame(this.raf)
+            this.createBall(count || 30, e.clientX, e.clientY)
+            this.draw(ctx)
+          })
+        }
+      }
+
+      createBall (count, x, y) {
+        for (let i = 0; i < count; i++) {
+          const ball = new Ball(x, y)
+          this.ballList.push(ball)
+        }
+      }
+
+      clear (ctx) {
+        // ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
+        // ctx.fillRect(0, 0, this.el.width, this.el.height)
+        ctx.clearRect(0, 0, this.el.width, this.el.height)
+        this.removeDisappearedBall()
+      }
+
+      draw (ctx) {
+        this.clear(ctx)
+        for (let i = 0; i < this.ballList.length; i++) {
+          const currentBall = this.ballList[i]
+          currentBall.move()
+          ctx.beginPath()
+          ctx.fillStyle = currentBall.color
+          ctx.arc(currentBall.x, currentBall.y, currentBall.r, 0, Math.PI * 2, true)
+          ctx.fill()
+          ctx.closePath()
+        }
+        if (!this.ballList.length) {
+          window.cancelAnimationFrame(this.raf)
+          return
+        }
+        this.raf = window.requestAnimationFrame(() => {
+          console.log(new Date())
+          this.draw(ctx)
+        })
+      }
+      
+      removeDisappearedBall () {
+        for(let i = 0; i < this.ballList.length; i++){
+            let currentBall = this.ballList[i]
+            if(currentBall.r < 0.3){
+                this.ballList.splice(i, 1)
+                i--
+            }
+        }
+      }   
+    }
+
+    new BoomBall(document.querySelector('canvas'))
+  </script>
+</body>
+</html>

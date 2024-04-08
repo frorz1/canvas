@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <script>
+    // context.stroke 用于对“路径”进行描边
+    // x, y为文本起点的横纵坐标，对齐位置为文字的左下角
+    // maxWidth 可选，文本占据的最大宽度，当超过此宽度时，通过压缩进行展示，而非换行
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // context.beginPath()
+    // context.moveTo(50, 50)
+    // context.lineTo(100, 100)
+    // // context.stroke()
+
+    // // context.beginPath()
+    // context.moveTo(150, 150)
+    // context.lineTo(120, 120)
+    // context.stroke()
+
+    context.fillStyle = '#0f0'
+    context.rect(0, 0, 50, 50)
+    context.fill()
+
+    // 开始新路径
+    // context.beginPath()
+    context.arc(100, 75, 50, 0, Math.PI * 2)
+    context.fill()
+  </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas></canvas>
+  <canvas id="canvasRadial"></canvas>
+  <script>
+    // fillStyle用来给canvas填充颜色，值有一下几个
+
+    // color
+    // 使用纯色填充，支持RGB，HSL，RGBA，HSLA以及HEX色值。
+    // gradient
+    // 使用渐变填充，可以是线性渐变或者径向渐变。
+    // pattern
+    // 使用纹理填充。由于图片也能作为纹理，因此fillStyle也能填充普通的位图，可参见下面的案例。
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // 纯色
+    // context.fillStyle = '#f00'
+    // context.fillRect(10, 10, 100, 100)
+
+    // 渐变, 这里使用的是纵向的渐变，0 - 200, 等于是在整个画布纵向0 - 200的区域内都绘制了渐变
+    // 当fillRect时，根据你绘制的rect大小和位置，从渐变区域中扣取
+    context.createRadialGradient
+    const gradient = context.createLinearGradient(0, 0, 0, 150)
+    gradient.addColorStop(0, 'red')
+    gradient.addColorStop(1, 'blue')
+    context.fillStyle = gradient
+    // 纵向完整渐变
+    context.fillRect(10, 0, 100, 100)
+    context.fillRect(150, 0, 100, 150)
+
+    // // 纵向分段渐变 第一个渐变纵向只到100
+    // context.fillRect(10, 0, 100, 100)
+    // // 这里占用剩下的渐变
+    // context.fillRect(10, 110, 100, 100)
+
+
+    // 径向渐变
+    var canvasRadial = document.getElementById('canvasRadial');
+    var contextRadial = canvasRadial.getContext('2d');
+    // 创建径向渐变对象，半径50
+    var gradientRadial = contextRadial.createRadialGradient(60, 60, 0, 60, 60, 50);
+    gradientRadial.addColorStop(0, 'red');
+    gradientRadial.addColorStop(0.2, 'red');
+    gradientRadial.addColorStop(0.2, 'orange');
+    gradientRadial.addColorStop(0.4, 'orange');
+    gradientRadial.addColorStop(0.4, 'yellow');
+    gradientRadial.addColorStop(0.6, 'yellow');
+    gradientRadial.addColorStop(0.6, 'green');
+    gradientRadial.addColorStop(0.8, 'green');
+    gradientRadial.addColorStop(0.8, 'purple');
+    gradientRadial.addColorStop(1, 'purple');
+
+    // 填充的时候使用的径向渐变填充，所以渐变的最后使用透明色，这样填充到最后可以达到只有圆的效果
+    gradientRadial.addColorStop(1, 'transparent');
+    contextRadial.fillStyle = gradientRadial;
+    contextRadial.fillRect(0, 0, 150, 150);
+
+  </script>
+</body>
+</html>

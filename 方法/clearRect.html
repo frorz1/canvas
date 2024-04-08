@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <img src="../canvas-coord.png" alt="">
+  <script>
+    // context.clearRect(x, y, width, height) 
+    // 用于将画布中的某一块矩形区域清除
+    // clearRect在canvas动画绘制中非常常用，不断清除画布再绘制，形成动画效果
+    // canvas的坐标系可以参考图片
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // canvas.width = 200
+    // canvas.height = 200
+    // const img = new Image()
+
+    // img.onload = function () {
+    //   // 旋转后再向画布中绘制图片
+    //   context.drawImage(this, 0, 0, 200, 200)
+    //   context.clearRect(50, 50, 50, 50)
+    // }
+
+    // img.src = '../400x400.png'
+    context.font = '16px STHeiti, SimHei';
+    let x = 30, radius = 30
+
+    const clear = function () {
+      context.clearRect(0, 0, 300, 150)
+      context.fillText('清除', 10, 40)
+      setTimeout(draw, 500)
+    }
+
+    const draw = function () {
+      x += 10
+      if (x + 30 > 300) {
+        x = 30
+      }
+      // 清除画布
+      context.clearRect(0, 0, 300, 150)
+      context.fillStyle = '#039';
+      context.beginPath()
+      context.arc(x, 90, radius, 0, Math.PI * 2)
+      context.fillText('绘制', 10, 40)
+      context.fill()
+      setTimeout(clear, 500)
+    }
+    draw()
+
+  </script>
+</body>
+</html>

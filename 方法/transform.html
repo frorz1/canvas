@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <img src="../canvas-coord.png" alt="">
+  <canvas id="canvas2">
+  </canvas>
+  <script>
+    // context.transform(a, b, c, d, e, f) 
+    // 用于通过矩阵变换重置当前坐标系。所谓矩阵也就是一个 Matrix(矩阵)
+    // 各个参数含义和作用如下：
+    // a
+    // 水平缩放。
+    // b
+    // 水平斜切。
+    // c
+    // 垂直斜切。
+    // d
+    // 垂直缩放。
+    // e
+    // 水平位移。
+    // f
+    // 垂直位移。
+    // a~f这两个参数对应的变换矩阵描述为：
+    // [ a c e ]
+    // [ b d f ]
+    // [ 0 0 1 ]
+    // 具体矩阵操作可以参考https://www.zhangxinxu.com/wordpress/2012/06/css3-transform-matrix-%e7%9f%a9%e9%98%b5/
+    // 此方法和transform()方法的区别在于，后者不会完全重置已有的变换，而是累加。
+
+    // 通过文章总结的规律就是 a d控制缩放, b c 控制拉伸，e f 控制偏移
+
+    // 缩放
+    // translate =  matrix(1, 0, 0, 1, translateX,translateY)
+
+    // 缩放
+    // scale =  matrix(scaleX, 0, 0, scaleY,0,0)
+
+    // 拉伸, 注意这里是先y轴后x轴
+    // skew = matrix(1,tan(θy),tan(θx),1,0,0)
+
+    // 旋转稍微复杂些，
+    // rotate = matrix(cosθ, sinθ, -sinθ, cosθ, 0, 0)
+
+    // css里的transform我们可以直接使用scale, skew, translate来清晰的表达
+    // 而canvas里则需要我们进行一个逆向操作，将我们的需求转化为矩阵
+
+    // 举个例子，想让画布旋转90度，那么根据rotate规则，矩阵为matrix(0.707, 0.707, -0.707, 0.707, 0, 0)
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // 移动原点
+    context.translate(150, 75)
+    // context.rotate(45 * Math.PI / 180)
+    context.transform(0.707, 0.707, -0.707, 0.707, 0, 0)
+    
+    // 重置原点
+    context.translate(-150, -75)
+    context.fillStyle = '#0f0'
+    context.fillRect(0, 0, 300, 150);
+
+
+    // 追加变换, 累加完成后的变换应为 此前的旋转45度 + 本次的translate(10, 10)
+    context.transform(1, 0, 0, 1, 10, 10)
+    context.font = '24px STHeiTi, SimHei'
+    context.fillStyle = '#000'
+    context.fillText('hello', 50, 50)
+
+    // 重置变换，那么scale应该是1:1, 也就是1， skew拉伸为0，translate也为0
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.font = '24px STHeiTi, SimHei'
+    context.fillStyle = '#000'
+    context.fillText('world', 50, 50)
+
+
+
+    var canvas2 = document.querySelector('#canvas2');    
+    var ctx = canvas2.getContext('2d');
+
+    // 向x轴拉伸45度。因为只拉伸，不缩放，所以scale保持1即可
+    ctx.transform(1, 0, 1, 1, 0, 0)
+
+    ctx.fillStyle = '#000'
+    ctx.fillRect(30, 30, 100, 100);
+  </script>
+</body>
+</html>

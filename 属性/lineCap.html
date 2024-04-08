@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="arrow" width="210" height="100"></canvas>
+  <script>
+
+    // cap这个单词是帽子的意思，lineCap也就是线的两端的样式
+    // 属性值有
+    // butt
+    // 默认值，线的端点就像是个断头台，例如一条横线，终点x坐标是100，则这条线的最右侧边缘就是100这个位置，没有超出。
+    // round
+    // 线的端点多出一个圆弧。
+    // square
+    // 线的端点多出一个方框，框框的宽度和线一样宽，高度是线厚度的一半。
+
+    var canvas = document.getElementById('arrow');    
+    var context = canvas.getContext('2d');
+    // 圆心坐标
+    var center = [50, 50];
+    // 线长度和距离圆心距离
+    var length = 15, offset = 15;
+    // 开始绘制
+    context.lineWidth = 8;
+    context.lineCap = 'round';
+    for (var angle = 0; angle < 360; angle += 45) {
+      // 正余弦
+      var sin = Math.sin(angle / 180 * Math.PI);
+      var cos = Math.cos(angle / 180 * Math.PI);
+      // 开始绘制
+      context.beginPath();
+      context.moveTo(center[0] + offset * cos, center[1] + offset * sin);
+      context.lineTo(center[0] + (offset + length) * cos, center[1] + (offset + length) * sin);
+      context.strokeStyle = 'rgba(0,0,0,'+ (0.25 + 0.75 * angle / 360) +')';
+      context.stroke();
+    }
+  </script>
+</body>
+</html>

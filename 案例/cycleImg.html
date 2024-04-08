@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas width="800" height="200"></canvas>
+  <script>
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    const speed = 30
+    let imgW = 0
+    let imgH = 0
+    let x = 0
+    const y = -4.5
+    const dx = 0.75
+
+    const canvasWidth = 800
+    const canvasHeight = 200
+    let clearX = 0
+    let clearY = 0
+    const scale = 0.2
+
+    const img = new Image()
+    img.onload = function () {
+      imgW = this.width * scale
+      imgH = this.height
+
+      if (imgW > canvasWidth) {
+        // 为了让图片的最右侧与canvas的右侧对齐，然后直接向右滚动，就可以看到完整的图片了
+        x = canvasWidth - imgW
+      }
+
+      if (imgW > canvasWidth) {
+        clearX = imgW
+      } else {
+        clearX = canvasWidth
+      }
+      if (imgH > canvasHeight) {
+        clearY = imgH
+      } else {
+        clearY = canvasHeight
+      }
+
+      setInterval(draw, speed)
+    }
+    function draw () {
+      context.clearRect(0, 0, clearX, clearY)
+
+      if (imgW > canvasWidth) {
+        // 当x = 0时，draw(x, y) 图片的最左侧出现在画布里
+        // 当 x = canvasWidth时，draw(x, y)也就是图片的最左侧即将从canvas中消失时
+        // 此时 draw(x - imgW, y)又恢复到了初始状态，图片右侧和canvas右侧对齐，所以，直接重置x即可
+        if (x > canvasWidth) {
+          x = canvasWidth - imgW
+        }
+        context.drawImage(img, x - imgW, y, imgW, imgH)
+      } else {
+        
+      }
+
+      context.drawImage(img, x, y, imgW, imgH)
+      x += dx
+    }
+
+    img.src = 'https://developer.mozilla.org/zh-CN/docs/Web/API/Canvas_API/Tutorial/Basic_animations/capitan_meadows,_yosemite_national_park.jpg'
+    
+  </script>
+</body>
+</html>

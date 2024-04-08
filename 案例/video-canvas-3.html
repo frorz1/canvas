@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .container {
+    display: flex;
+  }
+</style>
+<body>
+  <title>Video/Canvas Demo 3 - 浮雕效果</title>
+
+  <div class="container">
+    <video id="v" controls loop>
+      <source src="../video.webm" type=video/webm>
+      <source src="../video.ogg" type=video/ogg>
+      
+      <source src="../video.mp4" type=video/mp4>
+    </video>
+    <canvas id="c"></canvas>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const v = document.querySelector('#v')
+      const canvas = document.querySelector('#c')
+      const context = canvas.getContext('2d')
+      const back = document.createElement('canvas')
+      const backcontext = back.getContext('2d')
+
+      let cw, ch
+
+      v.addEventListener('play', function () {
+        cw = v.clientWidth
+        ch = v.clientHeight
+        console.log('w:', cw, ch)
+
+        canvas.width = cw
+        canvas.height = ch
+
+        back.width = cw
+        back.height = ch
+        draw(v, context, backcontext, cw, ch)
+      })
+
+      function draw (v, c, bc, cw, ch) {
+        if (v.paused || v.ended) return false
+        // 使用backcanvas进行渲染
+        bc.drawImage(v, 0, 0, cw, ch)
+        let idata = bc.getImageData(0,0,cw,ch);
+        let data = idata.data;
+        let w = idata.width;
+        let limit = data.length
+        // Loop through the subpixels, convoluting each using an edge-detection matrix.
+        for(let i = 0; i < limit; i++) {
+            if( i%4 == 3 ) continue;
+            data[i] = 127 + 2*data[i] - data[i + 4] - data[i + w*4];
+        }
+        // Draw the pixels onto the visible canvas
+        c.putImageData(idata,0,0);
+        setTimeout(draw, 20, v, c, bc, cw, ch)
+      }
+    })
+  </script>
+</body>
+</html>

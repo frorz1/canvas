@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas> </canvas>
+    <img src="../canvas-coord.png" alt="" />
+    <script>
+      // context.clip
+      // 表示路径裁剪，使用时需要先绘制路径，然后按路径裁剪
+      // 即将创建的路径设置为裁剪路径
+      // 之后绘制的内容就会出现在这个路径中
+
+      var canvas = document.querySelector('canvas')
+      var context = canvas.getContext('2d')
+
+      canvas.width = 200
+      canvas.height = 200
+      const img = new Image()
+
+      img.onload = function () {
+        // context.beginPath()
+        // context.arc(100, 100, 50, 0, Math.PI * 2)
+        // context.clip()
+        context.drawImage(this, 0, 0, 200, 200)
+
+        // 绘制梦层
+        context.save()
+        context.fillStyle = 'rgba(0,0,0,0.5)'
+        context.fillRect(0, 0, canvas.width, canvas.height)
+        // globalCompositeOperation将梦层绘制在原有图像上方
+        context.globalCompositeOperation = 'source-atop'
+        context.restore()
+
+        const url = canvas.toDataURL()
+
+        const newImg = new Image()
+        newImg.src = url
+        document.body.appendChild(newImg)
+      }
+
+      img.src = '../400x400.png'
+
+      // context.fillStyle = '#0f0'
+      // context.fillRect(0, 0, 300, 150)
+
+      // context.beginPath()
+      // // 也可以画弧或者矩形路径
+      // context.arc(100, 75, 50, 0, Math.PI * 2)
+      // // context.moveTo(0, 0)
+      // // context.lineTo(50, 0)
+      // // context.lineTo(50, 50)
+      // // context.lineTo(0, 50)
+      // context.clip()
+
+      // context.fillStyle = '#00f'
+      // // 这里可以看到，虽然fillRect的宽高为整个canvas的宽高，但是仍只在clip裁剪区域内绘制
+      // context.fillRect(0, 0, 300, 150)
+    </script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <img src="../canvas-coord.png" alt="">
+  <script>
+    // context.translate(x, y) 
+    // 用于对canvas坐标系进行整体位移，实际开发中常用来改变其他“变换方法”的变换中心点
+    // canvas的坐标系可以参考图片
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    context.fillStyle = 'blue'
+    context.fillRect(0, 0, 300, 150)
+
+    // 将坐标系移动到原来的中心点
+    context.translate(150, 75)
+
+    // 在原点重新绘制一个色块
+    context.fillStyle = 'yellow'
+    context.fillRect(0, 0, 50, 50)
+
+    // canvas.width = 200
+    // canvas.height = 200
+    // 如，将一个图片以canvas画布的中心为变换点进行旋转
+    // const img = new Image()
+
+    // img.onload = function () {
+    //   // 移动原点
+    //   context.translate(100, 100)
+      
+    //   context.rotate(45 * Math.PI / 180)
+
+    //   context.translate(-100, -100)
+      
+    //   // 旋转后再向画布中绘制图片
+    //   context.drawImage(this, 0, 0, 200, 200)
+
+    //   // 如果不重置坐标系，那么文字也是旋转的
+    //   context.font = '24px STHeiTi, SimHei'
+    //   context.fillText('hello', 0, 50)
+
+    //   //  完全重置已有的变换
+    //   context.setTransform(1, 0, 0, 1, 0, 0)
+
+    //   context.font = '24px STHeiTi, SimHei'
+    //   context.fillText('world', 0, 50)
+    // }
+
+    // img.src = '../400x400.png'
+
+  </script>
+</body>
+</html>

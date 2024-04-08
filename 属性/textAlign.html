@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  canvas {
+    position: relative;
+  }
+  div{
+    width: 300px;
+    height: 1px;
+    background-color: #000;
+    position: absolute;
+    left: 0;
+  }
+  div:nth-of-type(1) {
+    top: 50px;
+  }
+  div:nth-of-type(2) {
+    top: 100px;
+  }
+  div:nth-of-type(3) {
+    top: 150px;
+  }
+  div:nth-of-type(4) {
+    top: 0;
+    left: 150px;
+    width: 1px;
+    height: 150px;
+  }
+</style>
+<body>
+  <canvas>
+  </canvas>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <script>
+    // context.textAlign 用于在绘制文本时，设置文本的对齐方式
+    // left
+    // 文本左对齐。也就是最终绘制的文本内容最左侧位置就是设定的x坐标值。
+    // right
+    // 文本右对齐。也就是最终绘制的文本内容最右侧位置就是设定的x坐标值。
+    // center
+    // 文本居中对齐。也就是最终绘制的文本内容的水平中心位置就是设定的x坐标值。
+    // start
+    // 文本起始方位对齐。如果文本是从左往右排列的，则表示左对齐；如果文本是从右往左排列的（例如设置context.direction为rtl），则表示右对齐。
+    // end
+    // 文本结束方位对齐。如果文本是从左往右排列的，则表示右对齐；如果文本是从右往左排列的（例如设置context.direction为rtl），则表示左对齐
+
+    // 注意以上所说的对齐，指的是绘制文本时设置的起始位置来算的, 其实位置为文字的左下角，而非左上角
+    // context.fillText(text, x, y)
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // 以 x = 150进行对齐，left就是文字在右侧，center为文字在正中，right为文字在左侧
+    context.textAlign = 'left'
+
+    // 绘制文本时对齐的基线，如顶部对齐，中心对齐， 默认alphabetic，即字母的下边缘
+    context.textBaseline = 'alphabetic'
+
+    context.font = '50px serif'
+    // 文字左下角位置为 (150, 50)
+    context.fillText('hello', 150, 50)
+
+
+  </script>
+</body>
+</html>

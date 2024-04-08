@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .container {
+    display: flex;
+  }
+</style>
+<body>
+  <title>Video/Canvas Demo 2 - 灰度滤镜</title>
+
+  <div class="container">
+    <video id="v" controls loop>
+      <source src="../video.webm" type=video/webm>
+      <source src="../video.ogg" type=video/ogg>
+      
+      <source src="../video.mp4" type=video/mp4>
+    </video>
+    <canvas id="c"></canvas>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const v = document.querySelector('#v')
+      const canvas = document.querySelector('#c')
+      const context = canvas.getContext('2d')
+      const back = document.createElement('canvas')
+      const backcontext = back.getContext('2d')
+
+      let cw, ch
+
+      v.addEventListener('play', function () {
+        cw = v.clientWidth
+        ch = v.clientHeight
+        console.log('w:', cw, ch)
+
+        canvas.width = cw
+        canvas.height = ch
+
+        back.width = cw
+        back.height = ch
+        draw(v, context, backcontext, cw, ch)
+      })
+
+      function draw (v, c, bc, cw, ch) {
+        if (v.paused || v.ended) return false
+        // 使用backcanvas进行渲染
+        bc.drawImage(v, 0, 0, cw, ch)
+        const idata = bc.getImageData(0, 0, cw, ch)
+        const data = idata.data
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i]
+          const g = data[i + 1]
+          const b = data[i + 2]
+          // As we probably all know, when the red, green, and blue values of a color are equal, you get gray
+          const brightness = (3*r+4*g+b)>>>3
+          data[i] = brightness
+          data[i + 1] = brightness
+          data[i + 2] = brightness
+        }
+        idata.data = data
+        // 放回到画布中
+        c.putImageData(idata, 0, 0)
+        setTimeout(draw, 20, v, c, bc, cw, ch)
+      }
+    })
+  </script>
+</body>
+</html>

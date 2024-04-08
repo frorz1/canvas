@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .color {
+    width: 300px;
+    height: 150px;
+  }
+</style>
+<body>
+  <canvas>123</canvas>
+
+  <button id="gray">灰度</button>
+  <button id="invert">反转</button>
+  <button id="back">复原</button>
+
+  <p>hovered color</p>
+  <div class="color" id="hover_color"></div>
+
+
+  <p>clicked color</p>
+  <div class="color" id="click_color"></div>
+  <script>
+    const canvas = document.querySelector('canvas')
+    const context = canvas.getContext('2d')
+    const hoverDiv = document.querySelector('#hover_color')
+    const clickDiv = document.querySelector('#click_color')
+    const gray = document.querySelector('#gray')
+    const invert = document.querySelector('#invert')
+    const back = document.querySelector('#back')
+
+    let allImageData = []
+
+    var img = new Image();
+    img.crossOrigin = '';
+    img.onload = function () {
+        var context = canvas.getContext('2d');
+        // 图片绘制
+        context.drawImage(this, 0, 0, 300, 150);
+        allImageData = context.getImageData(0, 0, 300, 150)
+        // // 然后获取中间100*100区域数据
+        // var imageData = context.getImageData(75, 34, 100, 100);
+        // console.log(allImageData)
+        // // 直接将那部分数据放到别的地方，这个方法可以用来截取头像
+        // context.putImageData(imageData, 200, 0);
+    };
+    img.src = 'https://img1.baidu.com/it/u=1444084478,4003689885&fm=253&fmt=auto&app=138&f=JPEG?w=300&h=150';
+
+    const pickColor = function (event, element) {
+      const x = event.clientX
+      const y = event.clientY
+      const index = (y * (300 * 4)) + (x * 4)
+      // 提取一个width,height都为1的矩形就是1像素
+      // 所以我们只要知道一个坐标，就可以getImageData获取这个像素的图像信息
+      const pixel = context.getImageData(x, y, 1, 1).data
+      const color = `rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, ${pixel[3]})`
+      element.innerHTML = color
+      element.style.backgroundColor = color
+    }
+
+    canvas.addEventListener('mousemove', function (e) {
+      pickColor(e, hoverDiv)
+    })
+
+    canvas.addEventListener('click', function (e) {
+      pickColor(e, clickDiv)
+    })
+
+    const grayScale = function () {
+      const imageData = context.getImageData(0, 0, 300, 150)
+      const data = imageData.data
+      for(let i = 0; i < data.length; i+= 4) {
+        // 也可以使用加权平均，公式为 x = 0.299r + 0.587g + 0.114b
+        // 更多参考 https://en.wikipedia.org/wiki/Grayscale
+        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
+        data[i] = avg // red
+        data[i + 1] = avg // green
+        data[i + 2] = avg // blue
+      }
+      context.putImageData(imageData, 0, 0)
+    }
+
+    gray.addEventListener('click', grayScale)
+
+    invert.addEventListener('click', function () {
+      const imageData = context.getImageData(0, 0, 300, 150)
+      const data = imageData.data
+      for(let i = 0; i < data.length; i+= 4) {
+        data[i] = 255 - data[i] // red
+        data[i + 1] = 255 - data[i + 1] // green
+        data[i + 2] = 255 - data[i + 2] // blue
+      }
+      context.putImageData(imageData, 0, 0)
+    })
+
+    back.addEventListener('click', function () {
+      context.drawImage(img, 0, 0, 300, 150)
+    })
+
+  </script>
+</body>
+</html>

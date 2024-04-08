@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <script>
+    // context.setLineDash(segments) 用于设置虚线样式
+    // segments: 数值列表，用来说明虚线的 “实线”部分和“透明”部分的长度。
+    // 例如[5, 5] 表现为_ _ _ _
+    // [5, 10] 表现为 _   _   _   _
+    // 如果数组个数为奇数，则会重复一遍数组内的元素，确保是偶数
+
+    // context.getLineDash 用于获取虚线的设置
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    context.beginPath()
+    context.setLineDash([5])
+    const dash = context.getLineDash()
+    console.log('dash: ', dash) // [5, 5]
+    context.moveTo(50, 100)
+    context.lineTo(200, 100)
+    context.stroke()
+
+    context.beginPath()
+    context.setLineDash([5, 10, 15])
+    const dash2 = context.getLineDash()
+    console.log('dash2: ', dash2) // [5, 10, 15, 5, 10, 15]
+    context.moveTo(50, 120)
+    context.lineTo(200, 120)
+    context.stroke()
+  </script>
+</body>
+</html>

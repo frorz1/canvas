@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <script>
+    // context.beginPath()
+    // 此方法代表和之前的路径彻底分开，开始一个新路径
+    // 因此，非连续路径都要先调用 beginPath
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // 开始路径
+    // context.beginPath();
+    // context.strokeStyle = 'blue';
+    // context.moveTo(60, 20);
+    // context.lineTo(220, 20);
+    // context.stroke();
+    // // 开始路径 again
+    // context.beginPath();
+    // context.strokeStyle = 'green';
+    // context.moveTo(60, 20);
+    // context.lineTo(160, 120);
+    // context.stroke();
+
+
+    // 开始路径
+    context.beginPath();
+    context.strokeStyle = 'blue';
+    context.moveTo(60, 20);
+    context.lineTo(220, 20);
+    context.stroke();
+
+    context.strokeStyle = 'green';
+    // 因为没有beginPath, 所以路径从(220, 20)又返回到了(60, 20), 然后重新画到(160, 120)
+    // 所以第一条路径会变粗
+    context.moveTo(60, 20);
+    context.lineTo(160, 120);
+    context.stroke();
+    
+  </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas width="312" height="750"></canvas>
+  <img src="../rotate-coord.png" alt="">
+  <script>
+    // context.rotate(deg) 
+    // 用于对canvas坐标系进行旋转
+    // canvas的坐标系可以参考图片
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+    
+    // context.translate(150, 75)
+    // context.rotate(90 * Math.PI / 180)
+    // // context.translate(-150, -75)
+    // context.translate(-75, -150)
+    // context.font = '50px STHeiTi, SimHei'
+    // context.fillStyle = '#0f0'
+    // context.fillRect(0, 0, 150, 300)
+    // context.fillText('hello', 0, 50)
+    // // context.fillRect(0, 0, 150, 300)
+    // context.setTransform(1, 0, 0, 1, 0, 0);
+    // <canvas width="750" height="312"></canvas>
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+    // 1、首先图片渲染90度渲染，那么旋转完后的图片尺寸是 312 * 750。
+    // 2、我们应该用一个 312*750的画布去drawImage
+    // 3、将画布的原点移动到画布的右上角，可以理解为，我们用图片的左上角对准画布的右上角，然后沿坐标系方向渲染
+    // 渲染的区域为 x 轴方向 750， y轴方向312，正好充满画布
+    const width = 312, height = 750
+    
+    const img = new Image()
+    img.onload = function () {
+      // context.rotate(90 * Math.PI / 180)
+      // // 旋转90度
+      // context.translate(0, -width)
+      // // 绘制图片，注意画布上为绘制图片画出的区域为 height * width
+      // context.drawImage(this, 0, 0, height, width)
+      // 1、将原点移动到画布中心
+      context.translate(width / 2, height / 2)
+      // 旋转90度
+      context.rotate(90 * Math.PI / 180)
+      // 将原点移动到画布右上角。
+      context.translate(-height / 2, -width / 2)
+      // 绘制图片，注意画布上为绘制图片画出的区域为 height * width
+      context.drawImage(this, 0, 0, height, width)
+    }
+
+    img.src = '../750x312.png'
+
+  </script>
+</body>
+</html>

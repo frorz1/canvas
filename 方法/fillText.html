@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  canvas {
+    position: relative;
+  }
+  div{
+    width: 300px;
+    height: 1px;
+    background-color: #000;
+    position: absolute;
+    left: 0;
+  }
+  div:nth-of-type(1) {
+    top: 50px;
+  }
+  div:nth-of-type(2) {
+    top: 100px;
+  }
+  div:nth-of-type(3) {
+    top: 150px;
+  }
+  div:nth-of-type(4) {
+    top: 0;
+    left: 150px;
+    width: 1px;
+    height: 150px;
+  }
+</style>
+<body>
+  <canvas>
+  </canvas>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <script>
+    // context.fillText(text, x, y[, maxWidth]) 用于填充文字
+    // x, y为文本起点的横纵坐标，对齐位置为文字的左下角
+    // maxWidth 可选，文本占据的最大宽度，当超过此宽度时，通过压缩进行展示，而非换行
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // 以 x = 150进行对齐，left就是文字在右侧，center为文字在正中，right为文字在左侧
+    context.textAlign = 'left'
+
+    // 绘制文本时对齐的基线，如顶部对齐，中心对齐， 默认alphabetic，即字母的下边缘
+    context.textBaseline = 'alphabetic'
+
+    context.font = '50px serif'
+    // 文字左下角位置为 (150, 50)
+    context.fillText('javascript', 150, 50)
+
+    context.fillText('hello world', 50, 100, 50)
+
+    CanvasRenderingContext2D.prototype.getLines = function (text, maxWidth) {
+      const words = text.split(' ')
+      const lines = []
+      let currentLine = words[0]
+
+      for (let i = 1; i < words.length; i++) {
+        const word = words[i]
+        const width = this.measureText(currentLine + ' ' + word).width
+        if (width <= maxWidth) {
+          currentLine += word
+        } else {
+          lines.push(currentLine)
+          currentLine = word
+        }
+      }
+      lines.push(currentLine)
+      return lines
+    }
+
+    // 换行显示
+    CanvasRenderingContext2D.prototype.wrapText = function (x, y, lines, fontSize) {
+      let dy = y
+      for (let i = 0; i < lines.length; i++) {
+        this.fillText(lines[i], x, dy)
+        dy += fontSize
+      }
+    }
+
+    const lines = context.getLines('hello world', 50)
+    console.log(lines)
+    context.wrapText(150, 100, lines, 50)
+
+  </script>
+</body>
+</html>

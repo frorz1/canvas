@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="arrow" width="210" height="100"></canvas>
+  <script>
+
+    // join这个单词是连接的意思，lineJoin也就是线与线连接（转角）的样式
+    // 属性值有
+    // miter 尖角， 当转角角度很小时，则尖头会非常长，需要用miterLimit进行限制
+    // round 圆角
+    // bevel 平角
+
+    var canvas = document.getElementById('arrow');    
+    var context = canvas.getContext('2d');
+    // 起止点坐标，这里是示意
+    var start = { x: 20, y: 20 };
+    var end = { x: 190, y: 80 };
+    // 计算两点距离，主要是为了计算斜率
+    var distanceX = end.x - start.x, distanceY = end.y - start.y;
+    var distance = Math.sqrt(distanceY * distanceY + distanceX * distanceX);
+    // 箭头的尺寸
+    var distanceArrow = 7, sharpeArrow = 3;
+    // 先确定轴线与三角两个尖角点交汇坐标
+    var arrowMoveTo = {
+        x: start.x + distanceArrow * distanceX / distance,
+        y: start.y + distanceArrow * distanceY / distance
+    };
+    var arrowLineTo = {
+        x: end.x - distanceArrow * distanceX / distance,
+        y: end.y - distanceArrow * distanceY / distance
+    };
+    // 4个对称点坐标
+    var arrowTo1 = {
+        x: arrowMoveTo.x - sharpeArrow * distanceY / distance,
+        y: arrowMoveTo.y + sharpeArrow * distanceX / distance
+    };
+    var arrowTo2 = {
+        x: arrowMoveTo.x + sharpeArrow * distanceY / distance,
+        y: arrowMoveTo.y - sharpeArrow * distanceX / distance
+    };
+    var arrowTo3 = {
+        x: arrowLineTo.x - sharpeArrow * distanceY / distance,
+        y: arrowLineTo.y + sharpeArrow * distanceX / distance
+    };
+    var arrowTo4 = {
+        x: arrowLineTo.x + sharpeArrow * distanceY / distance,
+        y: arrowLineTo.y - sharpeArrow * distanceX / distance
+    };
+    // 设置线的粗细和断点，转角样式
+    context.lineWidth = 10;
+    context.lineCap = 'round';
+
+    context.lineJoin = 'round';
+    // context.lineJoin = 'miter';
+    // context.miterLimit = 2
+    // 绘制方法
+    var draw = function (arrow) {
+        arrow = arrow || 'single';
+        // 清除画布
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        // 开始绘制
+        context.beginPath();
+        // 三种箭头类型
+        switch (arrow) {
+            case 'single': {
+                context.moveTo(start.x, start.y);
+                context.lineTo(end.x, end.y);
+
+                // 两个结束对称点
+                context.lineTo(arrowTo3.x, arrowTo3.y);
+                context.lineTo(arrowTo4.x, arrowTo4.y);
+                // 回到结束点
+                context.lineTo(end.x, end.y);
+                break;
+            }
+            case 'both': {
+                context.moveTo(start.x, start.y);
+                // 两个起始对称点
+                context.lineTo(arrowTo1.x, arrowTo1.y);
+                context.lineTo(arrowTo2.x, arrowTo2.y);
+                // 回到起始点
+                context.lineTo(start.x, start.y);
+                // 重复single的绘制
+                context.lineTo(end.x, end.y);
+                context.lineTo(arrowTo3.x, arrowTo3.y);
+                context.lineTo(arrowTo4.x, arrowTo4.y);
+                context.lineTo(end.x, end.y);
+                break;
+            }
+            case 'part-both': {
+                // 先绘制起止线
+                context.moveTo(start.x, start.y);
+                context.lineTo(end.x, end.y);
+                // 结束点位置的半个箭头
+                context.lineTo(arrowTo4.x, arrowTo4.y);
+                context.lineTo(arrowLineTo.x, arrowLineTo.y);
+                context.closePath();
+                // 另一端的半箭头
+                context.moveTo(start.x, start.y);
+                context.lineTo(arrowTo1.x, arrowTo1.y);
+                context.lineTo(arrowMoveTo.x, arrowMoveTo.y);
+                break;
+            }
+        }
+        // 闭合，描边与填充
+        context.closePath();
+        context.stroke();
+        context.fill();
+    };
+    // 绘制单箭头
+    draw();
+    // 绘制双箭头
+    // draw('both');
+    // 绘制双向单侧箭头
+    // draw('part-both');
+  </script>
+</body>
+</html>

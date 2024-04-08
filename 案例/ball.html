@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas style="border: 1px solid" width="600" height="300"></canvas>
+  <script>
+    var canvas = document.querySelector('canvas')
+    var context = canvas.getContext('2d')
+    let raf
+    let running = false
+
+    const ball = {
+      x: 100,
+      y: 100,
+      vy: 5,
+      vx: 2,
+      radius: 25,
+      color: 'blue',
+      draw () {
+        context.beginPath()
+        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true)
+        context.fillStyle = this.color
+        context.closePath()
+        context.fill()
+      }
+    }
+
+    function clear () {
+      // 长尾效果, 
+      // 越靠近当前坐标的几个，渲染时间越靠后，所以不同命度高
+      // 当渲染的次数足够多，越早渲染的就会接近透明
+      context.fillStyle = 'rgba(255, 255, 255, 0.3)'
+      context.fillRect(0, 0, canvas.width, canvas.height)
+    }
+
+    function draw () {
+      clear()
+      ball.draw()
+      ball.x += ball.vx
+      ball.y += ball.vy
+
+      // 设置垂直方向上的加速度
+      // 逐帧减少垂直方向的速度 过程大概是[5, 9] [-9, 0] [0, 7] [-7, 0] [0, 6] [-6, 0] [0, 5] ...
+      // vy成逐渐递减趋势，vy减少到0所需要的时间越来越短，所以球回弹的高度会越来越低
+      ball.vy *= 0.99 // 0.99是为了让速度有损耗
+      ball.vy += 0.25
+      console.log(ball.vy, ball.y)
+
+      // 边界处理
+      if (ball.x > canvas.width || ball.x < 0) {
+        ball.vx = -ball.vx
+      }
+
+      if (ball.y > canvas.height || ball.y < 0) {
+        // 这样 ball.y + ball.vy就可以反向运动
+        ball.vy = -ball.vy
+      }
+
+      raf = window.requestAnimationFrame(draw)
+    }
+
+    // canvas.addEventListener('mouseover', function () {
+    //   raf = window.requestAnimationFrame(draw)
+    // })
+
+    canvas.addEventListener('mousemove', function (e) {
+      if (!running) {
+        clear()
+        ball.x = e.offsetX
+        ball.y = e.offsetY
+        ball.draw()
+      }
+    })
+
+    canvas.addEventListener('click', function (e) {
+      if (!running) {
+        raf = window.requestAnimationFrame(draw)
+        running = true
+      }
+    })
+
+    canvas.addEventListener('mouseout', function () {
+      window.cancelAnimationFrame(raf)
+      running = false
+    })
+
+    ball.draw()
+  </script>
+</body>
+</html>

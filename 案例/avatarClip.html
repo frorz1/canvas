@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      input {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="file" />
+    <canvas> </canvas>
+    <!-- <div>下载</div> -->
+    <img id="clip-img" src="" alt="" />
+    <script src="./util.js"></script>
+    <script>
+      // 参考自：https://github.com/cjj281795819/canvas-img-edit
+      const input = document.querySelector('#file')
+      const canvas = document.querySelector('canvas')
+      const ctx = canvas.getContext('2d')
+      const body = document.body
+      const clipImg = document.querySelector('#clip-img')
+
+      let initMousePosi = {}
+      let selectInfo = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+      }
+      let resetSelector = false
+      let operableParts = []
+      let operatorIndex = 9 // 鼠标在哪个操作点上，具体的分布如下,即先四个角，再四条边
+      // 0--4--1
+      // |  |  |
+      // 7--8--5
+      // |  |  |
+      // 3--6--2
+      let initOperatorIndex = 2 // 鼠标按下初始化时的操作区域
+      // 正在画框
+      let selecting = false
+
+      const img = new Image()
+      img.src = '../750x312.png'
+      img.onload = () => {
+        console.log(img.width)
+        canvas.width = img.width
+        canvas.height = img.height
+        drawImage()
+      }
+      // input.addEventListener('change', (e) => {
+      //   const file = e.target.files[0]
+      //   console.log(file)
+      //   const url = window.URL.createObjectURL(file)
+      //   console.log(url)
+      //   img.onload = () => {
+      //     console.log(img.width)
+      //     canvas.width = img.width
+      //     canvas.height = img.height
+      //     drawImage()
+      //     drawCover()
+      //     drawSelect(100, 100, 100, 100)
+      //   }
+      //   img.src = url
+      // })
+
+      canvas.addEventListener('mousedown', function (event) {
+        selecting = true
+        if (operatorIndex === 9) {
+          resetSelector = true
+        }
+        initMousePosi = {
+          x: event.offsetX,
+          y: event.offsetY,
+        }
+      })
+
+      const checkInPath = (x, y, rectInfo) => {
+        // const { x: rectX, y: rectY, width, height } = rectInfo
+        ctx.beginPath()
+        ctx.rect(...rectInfo)
+        const result = ctx.isPointInPath(x, y)
+        ctx.closePath()
+        return result
+      }
+
+      canvas.addEventListener('mousemove', function (event) {
+        let cursor = 'crosshair'
+        operatorIndex = 9
+        // 判断鼠标在选择框的不同位置时，设置不同的鼠标样式
+        for (let i = 0; i < operableParts.length; i++) {
+          // 检查鼠标在哪个操作区内
+          if (checkInPath(event.offsetX, event.offsetY, operableParts[i])) {
+            cursor = getCursorStyle(i)
+            operatorIndex = i
+            break
+          }
+        }
+        canvas.style.cursor = cursor
+
+        // 这一步要放到修改鼠标样式后面，否则鼠标会保持之前的样式无法更改
+        if (!selecting) {
+          return
+        }
+
+        const distanceX = event.offsetX - initMousePosi.x
+        const distanceY = event.offsetY - initMousePosi.y
+
+        if (resetSelector) {
+          selectInfo = {
+            x: initMousePosi.x,
+            y: initMousePosi.y,
+            w: 4,
+            h: 4,
+          }
+          initOperatorIndex = 2
+          resetSelector = false
+        }
+        console.log(initOperatorIndex, operatorIndex)
+        // 处于操作点时，修改选择框的位置信息
+        selectInfo = getSelectorInfoByMousePosition(
+          initOperatorIndex !== null ? initOperatorIndex : operatorIndex,
+          selectInfo,
+          distanceX,
+          distanceY,
+        )
+
+        drawSelect(selectInfo.x, selectInfo.y, selectInfo.w, selectInfo.h)
+
+        // 画框之后需要更新initMousePosi，将当前鼠标的位置作为下一次绘制的起始点
+        initMousePosi = {
+          x: event.offsetX,
+          y: event.offsetY,
+        }
+
+        // 调整选择框时，如果鼠标移动的过快，那么operatorIndex可能会发生变化，比如我放在右下角时operatorIndex = 2，那么调整时operatorIndex可能会因为太快变为6， 8等，导致行为出现问题
+        // 所以当选中某一个操作点时，我们就需要将这个操作点的index固定下来，即便operatorIndex发生了变化，也能保证调整的行为不出错
+        if (initOperatorIndex === null) {
+          initOperatorIndex = operatorIndex
+        }
+      })
+
+      body.addEventListener('mouseup', function (event) {
+        console.log('mouseup')
+        if (selecting) {
+          const dataUrl = getImageData(
+            img,
+            selectInfo.w,
+            selectInfo.h,
+            selectInfo,
+          )
+          clipImg.src = dataUrl
+        }
+        selecting = false
+        initOperatorIndex = null
+      })
+
+      function drawSelect(x, y, width, height) {
+        // 因为要移动选中框，所以上一次绘制的内容需要清掉
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        // 先画蒙层，然后clearRect将选中框的位置抠出来，这样rect这块就没有蒙层了，再把图片画进去，因为图片是衬在底下的，所以rect那块就显示高亮了
+        drawCover()
+        ctx.save()
+        ctx.clearRect(x, y, width, height)
+        ctx.strokeStyle = '#5696f8'
+        ctx.strokeRect(x, y, width, height)
+
+        // 绘制几个可操作的点
+        const dots = getDotPosition(x, y, width, height)
+        ctx.fillStyle = '#5696f8'
+        dots.forEach((dot) => {
+          ctx.fillRect(...dot)
+        })
+
+        // 绘制框内的虚线
+        ctx.lineWidth = 1
+        ctx.strokeStyle = 'rgba(255, 255, 255, .75)'
+        const dashs = getDashPosition(x, y, width, height)
+        dashs.forEach((dash) => {
+          ctx.beginPath()
+          ctx.setLineDash([2, 4])
+          ctx.moveTo(dash[0], dash[1])
+          ctx.lineTo(dash[2], dash[3])
+          ctx.closePath()
+          ctx.stroke()
+        })
+
+        ctx.restore()
+        drawImage()
+        // 保存所有可以操作的点和线的位置。包括边框上的4个操作点(线中间的操作点和线功能相同，不需要计算)和上下左右四个操作边
+        operableParts = getOperablePartsPosition(x, y, width, height)
+
+        // 如果鼠标放在选中框内，设置鼠标样式为move，因此也需要记录选中框的信息
+        operableParts.push([
+          selectInfo.x,
+          selectInfo.y,
+          selectInfo.w,
+          selectInfo.h,
+        ])
+      }
+
+      function drawImage() {
+        ctx.save()
+        ctx.globalCompositeOperation = 'destination-over'
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        ctx.restore()
+      }
+
+      function drawCover() {
+        ctx.save()
+        ctx.fillStyle = 'rgba(0,0,0,0.5)'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        // ctx.globalCompositeOperation = 'source-atop'
+        ctx.restore()
+      }
+    </script>
+  </body>
+</html>

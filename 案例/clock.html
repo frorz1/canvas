@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas width="150" height="150"></canvas>
+  <script>
+    // context.clip
+    // 表示路径裁剪，使用时需要先绘制路径，然后按路径裁剪
+    // 即将创建的路径设置为裁剪路径
+    // 之后绘制的内容就会出现在这个路径中
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    function clock () {
+      const now = new Date()
+      context.save()
+      context.clearRect(0, 0, 150, 150);
+      context.translate(75, 75)
+      context.scale(0.4, 0.4);
+      context.rotate(-Math.PI / 2)
+      context.strokeStyle = 'black'
+      context.fillStyle = 'white'
+      context.lineWidth = 8
+      context.lineCap = 'round'
+
+      function drawHourMarks () {
+        context.save()
+        // 时针一圈 12 个小时, 每小时相差30deg
+        for (let i = 0; i < 12; i++) {
+          context.rotate(Math.PI / 6)
+          context.beginPath()
+          context.moveTo(100, 0)
+          context.lineTo(120, 0)
+          context.stroke()
+        }
+        context.restore()
+      }
+
+      drawHourMarks()
+
+      function drawMinuteMarks () {
+        context.save()
+        context.lineWidth = 5
+        // 分针一圈60分钟, 每分钟相差 6deg
+        for (let i = 0; i < 60; i++) {
+          if (i % 5 !== 0) {
+            context.beginPath()
+            context.moveTo(117, 0)
+            context.lineTo(120, 0)
+            context.stroke()
+          }
+          context.rotate(Math.PI / 30)
+        }
+        context.restore()
+      }
+
+      drawMinuteMarks()
+
+      let hr = now.getHours()
+      const min = now.getMinutes()
+      const sec = now.getSeconds()
+      hr = hr > 12 ? hr - 12 : hr
+
+      // 绘制时针
+      function drawhourHand () {
+        context.save()
+        // 时针的角度由三部分组成
+        // 1、时针一圈12小时，一个小时的旋转角度为Math.PI / 6， 那么n个小时就是 n * (Math.PI / 6)
+        // 2、每多余 1 分针，则相当于多余 1/60 小时，所以分钟数需要的角度为 (min / 60) * (Math.PI / 6)
+        // 3、秒同理
+        context.rotate(hr * (Math.PI / 6) + min * (Math.PI / 360) + sec * (Math.PI / 21600))
+        context.beginPath()
+        context.lineWidth = 14
+        context.moveTo(-20, 0)
+        context.lineTo(80, 0)
+        context.stroke()
+        context.restore()
+      }
+
+      drawhourHand()
+
+      // 绘制分钟
+      function drawMinuteHand () {
+        context.save()
+        // 分针的角度由两部分组成
+        // 1、分针一圈60分钟，一分钟的旋转角度为Math.PI / 30
+        // 2、每多余 1 秒钟，则相当于多余 1/60 分钟，所以秒针数需要的角度为 (sec / 60) * (Math.PI / 30)
+        // 3、秒同理
+        context.rotate(min * (Math.PI / 30) + sec * (Math.PI / 1800))
+        context.beginPath()
+        context.lineWidth = 10
+        context.moveTo(-28, 0)
+        context.lineTo(110, 0)
+        context.stroke()
+        context.restore()
+      }
+
+      drawMinuteHand()
+
+      // 绘制秒针
+      function drawSecondHand () {
+        context.save()
+        context.rotate(sec * (Math.PI / 30))
+        context.beginPath()
+        context.lineWidth = 6
+        context.strokeStyle = "#D40000"
+        context.fillStyle = "#D40000"
+        context.moveTo(-30, 0)
+        context.lineTo(83, 0)
+        context.stroke()
+
+        // 绘制时针，分针，秒针的中心
+        context.beginPath()
+        context.arc(0, 0, 10, 0,Math.PI * 2, true)
+        context.fill()
+
+        context.save()
+        context.fillStyle = 'black'
+        context.beginPath()
+        context.arc(0, 0, 2, 0,Math.PI * 2, true)
+        context.fill()
+        context.restore()
+
+        // 秒针末尾圆环
+        context.beginPath()
+        // 线宽为6，秒针的末尾 x = 83, 圆环的半径10, 所以末尾环的起点 x = 83 + 6 + 10
+        context.arc(99, 0, 10, 0, Math.PI * 2, true)
+        context.stroke()
+        context.closePath()
+
+        context.restore()
+      }
+
+      drawSecondHand()
+
+      // draw
+      context.beginPath()
+      context.lineWidth = 14
+      context.strokeStyle = '#325FA2'
+      context.arc(0, 0, 142, 0, Math.PI * 2, true)
+      context.stroke()
+
+      context.restore()
+      window.requestAnimationFrame(clock)
+    }
+
+    window.requestAnimationFrame(clock)
+    
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  img {
+    width: 200px;
+    height: 100px;
+  }
+</style>
+<body>
+  <canvas></canvas>
+  <img id="test-img" src="../test.jpeg" alt="">
+
+  <canvas id="canvas-2">123</canvas>
+
+  <script>
+    // 
+    const canvas = document.querySelector('canvas')
+    const context = canvas.getContext('2d')
+
+    // globalAlpha用来设置画布的全局透明度，0-1， 0完全透明。 若是范围之外的则无视，而非取边界值
+    context.globalAlpha = 0.5
+    context.fillStyle = 'blue'
+    context.fillRect(10, 10, 100, 100)
+
+    // 无效，不在[0, 1]内，则该设置直接无视
+    context.globalAlpha = 1.5
+    context.fillStyle = 'red'
+    context.rect(80, 40, 100, 100)
+    context.fill()
+
+
+    // 对于纯色图形绘制，最好使用rgba或者hsla色值进行控制，因为globalAlpha用完之后要还原
+    // 而如果绘制图片，则借助globalAlpha是更好的选择
+    const img = new Image()
+    img.src = '../ar.png'
+    // img.src = '../test.jpeg'
+    img.width = '300px'
+    img.height = '150px'
+    const canvas2 = document.querySelector('#canvas-2')
+    console.log(canvas2, img)
+    const ctx = canvas2.getContext('2d')
+    
+
+
+    img.onload = function () {
+      ctx.globalAlpha = 1
+
+      // 保存以前上下文的状态，也就是保存的globalAlpha = 1
+      ctx.save()
+
+      // 设置新的透明度
+      ctx.globalAlpha = 0.5
+
+      ctx.drawImage(img, 0, 281, 1125, 562, 0, 0, 300, 150)
+
+      // 将之前保存的上下文状态还原
+      ctx.restore()
+
+      ctx.font = '48px serif';
+      ctx.fillText('标题', 0, 90);
+    }
+  </script>
+</body>
+</html>

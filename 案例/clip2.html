@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas width="200" height="200"></canvas>
+  <img src="../canvas-coord.png" alt="">
+  <script>
+    // context.clip
+    // 表示路径裁剪，使用时需要先绘制路径，然后按路径裁剪
+    // 即将创建的路径设置为裁剪路径
+    // 之后绘制的内容就会出现在这个路径中
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    context.fillRect(0, 0, 200, 200)
+    context.translate(100, 100)
+
+    // 画布中心裁剪一个圆出来 
+    context.beginPath()
+    context.arc(0, 0, 80, 0, Math.PI * 2, true)
+    context.clip()
+
+    // 增加渐变
+    const gradient = context.createLinearGradient(0, 0, 200, 200)
+    gradient.addColorStop(0, '#232256')
+    gradient.addColorStop(1, '#143778')
+
+    context.fillStyle = gradient
+    context.fillRect(-100, -100, 200, 200)
+
+    
+    for (let i = 0; i < 50; i++) {
+      
+      // 保存之前的画布状态，即 原点在画布中心
+      context.save()
+      context.fillStyle = '#fff'
+      context.translate(
+        100 - Math.floor(Math.random() * 200),
+        100 - Math.floor(Math.random() * 200)
+      )
+
+      drawStar(Math.floor(Math.random() * 4) + 2)
+      context.restore()
+    }
+
+    function drawStar (r) {
+      context.save()
+      context.beginPath()
+      context.moveTo(r, 0)
+      for (let i = 0; i < 9; i++) {
+        // 旋转只是旋转的坐标系，已经画了的线或者是moveTo的坐标，则还在旋转前的画布位置，
+        // 即，rotate对已经绘制的内容并不起作用
+        // 可以将这里的10步炒开，一步一步看效果
+        context.rotate(Math.PI / 5)
+        if (i % 2 === 0) {
+          context.lineTo((r / 0.525731) * 0.200811, 0)
+        } else {
+          context.lineTo(r, 0)
+        }
+      }
+      context.closePath()
+      context.fill()
+      context.restore()
+    }
+    
+  </script>
+</body>
+</html>

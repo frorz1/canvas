@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>123</canvas>
+
+  <script>
+    // arcTo(x1, y1, x2, y2, radius) 常用来绘制圆角，可以绘制圆角矩形或者圆形都可以
+    // 每调用一次lineTo, arcTo，都相当于将起始点从原来的moveTo,移动到了新的地方
+    // 而arcTo就相当于将每次的起始点，控制点1，控制点2连成一个“三角形”，
+    // 然后在控制点1所在的夹角处内切出来一个半径为radius的圆弧
+    // 控制点1所在的夹角越大（或者起始点的夹角越小），则圆弧越小
+
+    // 因为圆角矩形（圆同理）就是在矩形的四个角做内切的，所以(x, y)就是直角矩形的左上角坐标，width也是直角矩形的宽
+    const canvas = document.querySelector('canvas')
+    const context = canvas.getContext('2d')
+    // context.beginPath();
+    // const x = 10
+    // const y = 10
+    // const width = 113
+    // const height = 28
+    // const radius = 14
+    // const left = x
+    // const right = x + width
+    // const top1 = y
+    // const bottom = y + height
+
+    // context.moveTo(radius, y);
+    // // 起始点为(radius, y)
+    // context.arcTo(right, top1, right, bottom, radius)
+    // // 起始点为第一次arcTo完成后的圆角结束的点，大概是 (right, height / 2)
+    // context.arcTo(right, bottom, left, bottom, radius)
+    // context.arcTo(left, bottom, left, top1, radius)
+    // context.arcTo(left, top1, right, top1, radius)
+    // // context.closePath()
+    // context.stroke()
+
+
+    // const top2 = 100
+    // const bottom2 = top2 + 50
+
+    // context.beginPath()
+    // context.moveTo(radius, 100)
+    // context.lineTo(right, top2)
+    // context.lineTo(right, bottom2)
+    // context.lineTo(left, bottom2)
+    // context.lineTo(left, top2)
+    // context.closePath()
+    // context.stroke()
+
+
+    // // 绘制圆形， 只要radius是宽高的一般，那么绘制出来就是圆
+    // const cirWidth = 28
+    // const cirHeight = 28
+    // const cirX = 200
+    // const cirY = 10
+    // context.beginPath()
+    // context.moveTo(cirX + radius, cirY)
+    // context.arcTo(cirX + cirWidth, cirY, cirX + cirWidth, cirY + cirHeight, radius)
+    // context.arcTo(cirX + cirWidth, cirY + cirHeight, cirX, cirY + cirHeight, radius)
+    // context.arcTo(cirX, cirY + cirHeight, cirX, cirY, radius)
+    // context.arcTo(cirX, cirY, cirX + cirWidth, cirY, radius)
+    // context.closePath()
+    // context.stroke()
+
+    const renderRoundRect = (
+      ctx,
+      {
+        width,
+        height,
+        x = 0,
+        y = 0,
+        strokeStyle = '#000',
+        lineWidth = 0,
+        radius = 0,
+      }
+    ) => {
+      const left = x + lineWidth / 2
+      const right = x + width - lineWidth / 2
+      const top = y + lineWidth / 2
+      const bottom = y + height - lineWidth / 2
+
+      ctx.beginPath()
+
+      ctx.strokeStyle = strokeStyle
+      ctx.lineWidth = lineWidth
+
+      ctx.moveTo(left + radius, top)
+      ctx.lineTo(right - radius, top)
+      ctx.quadraticCurveTo(right, top, right, top + radius)
+
+      ctx.lineTo(right, bottom - radius)
+      ctx.quadraticCurveTo(right, bottom, right - radius, bottom)
+
+      ctx.lineTo(left + radius, bottom)
+      ctx.quadraticCurveTo(left, bottom, left, bottom - radius)
+
+      ctx.lineTo(left, top + radius)
+      ctx.quadraticCurveTo(left, top, left + radius, top)
+
+      ctx.stroke()
+    }
+
+    const renderRect = (
+      ctx,
+      {
+        width,
+        height,
+        x = 0,
+        y = 0,
+        radius = {},
+        fillStyle = '#000',
+        pixelRatio = 1,
+      },
+    ) => {
+      const left = x
+      const right = x + width
+      const top = y
+      const bottom = y + height
+
+      const realValue = (w, h, r) => {
+        const real = Math.min(w, h, r * pixelRatio * 2)
+        return real / 2
+      }
+
+      let rebuildRadius = {}
+
+      if (typeof radius === 'number') {
+        rebuildRadius = {
+          topLeft: radius,
+          topRight: radius,
+          bottomRight: radius,
+          bottomLeft: radius
+        }
+      } else {
+        rebuildRadius = radius
+      }
+
+      let { topLeft = 0, topRight = 0, bottomRight = 0, bottomLeft = 0 } = rebuildRadius
+
+      // 做最终校验，radius不能大于宽高
+      topLeft = realValue(width, height, topLeft)
+      topRight = realValue(width, height, topRight)
+      bottomRight = realValue(width, height, bottomRight)
+      bottomLeft = realValue(width, height, bottomLeft)
+
+      ctx.beginPath()
+      ctx.moveTo(left + topLeft, top)
+      ctx.arcTo(right, top, right, bottom, topRight)
+      ctx.arcTo(right, bottom, left, bottom, bottomRight)
+      ctx.arcTo(left, bottom, left, top, bottomLeft)
+      ctx.arcTo(left, top, right, top, topLeft)
+      ctx.closePath()
+
+      ctx.strokeStyle = fillStyle
+      ctx.stroke()
+    }
+    renderRect(context, {
+      x: 10,
+      y: 10,
+      width: 40,
+      height: 40,
+      radius: 20
+    })
+
+    // renderRoundRect(context, {
+    //   x: 10,
+    //   y: 10,
+    //   width: 40,
+    //   height: 40,
+    //   radius: 20,
+    //   lineWidth: 2
+    // })
+  </script>
+</body>
+</html>

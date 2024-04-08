@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>123</canvas>
+
+  <script>
+    // arc用来画圆弧路径， context.arc(x, y, radius, startAngle, endAngle [, anticlockwise]);
+    // x: 圆弧对应的圆心的横坐标 
+    // y: 圆弧对应的圆心的纵坐标 
+    // radius: 圆弧半径大小
+    // startAngle: 圆弧开始角度，单位弧度
+    // endAngle: 圆弧结束角度，单位弧度
+    // anticlockwise: 是否逆时针。如果true, 则为从endAngle => startAngle
+    // 需要注意的是！！！！： arc只是用来绘制圆弧路径，但是需要用fill或者stroke绘制出填充或者描边
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d')
+    ctx.lineWidth = 5
+    ctx.save()
+    // 划线之前beginPath, 否则会与上一段path连接起来
+    ctx.beginPath()
+    // 逆时针
+    ctx.arc(100, 50, 20, 0, Math.PI / 2, true)
+    ctx.strokeStyle = '#f00'
+    ctx.stroke()
+    ctx.closePath()
+
+    ctx.restore()
+
+    // 划线之前beginPath, 否则会与上一段path连接起来
+    ctx.beginPath()
+    // 顺时针, 这样与顺时针是完全对齐的
+    ctx.arc(100, 50, 20, 0, Math.PI / 2)
+    ctx.stroke()
+    ctx.closePath()
+
+
+    ctx.beginPath()
+    ctx.arc(150, 50, 20, 0, Math.PI * 2)
+    ctx.stroke()  
+    ctx.closePath()
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas width="200", height="40"></canvas>
+  <script>
+    class GCode {
+      constructor (el, options = {}) {
+        this.el = typeof el === 'string' ? document.querySelector(el) : el
+        this.options = options
+      }
+      init () {
+        if (this.el.getContext) {
+          const context = this.el.getContext('2d')
+          const { width, height, lineNum, charNum } = this.options
+          this.el.width = width || 200
+          this.el.height = height || 40
+
+          context.fillStyle = '#fff'
+          context.fillRect(0, 0, this.el.width, this.el.height)
+
+          // 绘制线条，
+          this.drawRandomLine(context, lineNum || 8, this.el.width, this.el.height)
+          // 绘制字母
+          this.drawChar(context, charNum || 4, this.el.height)
+
+          this.el.addEventListener('click', () => {
+            this.init()
+          })
+        }
+      }
+      drawRandomLine (ctx, lineNum, maxW, maxH) {
+        ctx.clearRect(0, 0, this.el.width, this.el.height)
+        for (let i = 0; i < lineNum; i++) {
+          const x1 = Math.random() * maxW
+          const x2 = Math.random() * maxW
+          const y1 = Math.random() * maxH
+          const y2 = Math.random() * maxH
+
+          ctx.save()
+          ctx.strokeStyle = this.getRandomColor()
+          ctx.beginPath()
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
+          ctx.stroke()
+          ctx.restore()
+        }
+      }
+      drawChar (ctx, charNum, maxH) {
+        const alphabet = [
+          'a', 'b', 'c', 'd', 'e',
+          'f', 'g', 'h', 'i', 'j', 
+          'k', 'l', 'm', 'o', 'p',
+          'q', 'r', 's', 't', 'u',
+          'v', 'w', 'x', 'y', 'z'
+        ]
+        ctx.save()
+        const list = []
+        for (let i = 0; i < charNum; i++) {
+          const char = this.getUniqueChar(alphabet, list)
+          list.push(char)
+          // 将宽度平分成charNum份，每份居中显示。
+          const singleAreaW = Math.floor(this.el.width / charNum)
+          const x = singleAreaW * i + (singleAreaW / 2) * Math.random()
+          const y = maxH / 2 + Math.random() * 5
+          ctx.font = '30px Helvetica'
+          ctx.textBaseline = 'middle'
+          ctx.fillStyle = this.getRandomColor()
+          ctx.fillText(char, x, y)
+        }
+        ctx.restore()
+      }
+      getRandomColor () {
+        return `rgb(${255 * Math.random()}, ${255 * Math.random()}, ${255 * Math.random()})`
+      }
+      getUniqueChar (alphabet, list) {
+        console.log(list)
+        const char = alphabet[Math.floor(Math.random() * alphabet.length)]
+        if (list.includes(char)) {
+          return this.getUniqueChar(alphabet, list)
+        } else {
+          return char
+        }
+      }
+    }
+    const code = new GCode(document.querySelector('canvas'), {
+      width: 400,
+      height: 100,
+      lineNum: 15,
+      charNum: 6
+    })
+    code.init()
+  </script>
+</body>
+</html>

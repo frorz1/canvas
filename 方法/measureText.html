@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas>
+  </canvas>
+  <script>
+    // context.measureText(text) 用于对测量文本宽度，此方法是换行的关键，并且测量结果非常精确
+
+    var canvas = document.querySelector('canvas');    
+    var context = canvas.getContext('2d');
+
+    // 输出一个中文字符宽度以及输出一个英文单词的宽度，宽度直接在Canvas文字右上方标记
+    context.font = '24px STHeiTi, SimHei'
+    const textZh = context.measureText('我')
+    const textEn = context.measureText('Hello')
+
+    context.fillStyle = '#ccc'
+    context.fillRect(0, 0, 300, 150)
+
+    context.translate(10, 10)
+
+    context.fillStyle = '#00f'
+    context.fillText('是', 0, 24)
+    
+    context.fillText('我', 80, 60)
+    context.fillText('Hello', 80, 90)
+
+    context.font = '12px Arial'
+    context.fillStyle = 'red'
+
+    context.fillText('宽' +  textZh.width, 85 + textZh.width, 40)
+    context.fillText('宽' +  textEn.width, 85 + textEn.width, 70)
+
+  </script>
+</body>
+</html>

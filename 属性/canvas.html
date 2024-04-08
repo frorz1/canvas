@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  canvas {
+    background:green;
+    width: 100px;
+    height: 50px;
+  }
+</style>
+<body>
+  <canvas width="200" height="100"></canvas>
+  <script>
+    // 
+    const canvas = document.querySelector('canvas')
+    const context = canvas.getContext('2d')
+
+    // 只读属性，用于返回当前上下文源自哪个<canvas>元素，可以利用该属性扩展方法
+    const can = context.canvas
+    console.log(context.canvas)
+
+    // 如，扩展一个按照canvas的最短边画圆的方法
+    CanvasRenderingContext2D.prototype.fullCircle = function (style) {
+      const canvas = this.canvas
+      console.log(canvas.width, canvas.height)
+      const minRadius = Math.min(canvas.width, canvas.height) / 2
+      this.fillStyle = style || '#000'
+      this.beginPath()
+      this.arc(canvas.width / 2, canvas.height / 2, minRadius, 0, Math.PI * 2)
+      this.fill()
+    }
+
+    context.fullCircle()
+
+  </script>
+</body>
+</html>
