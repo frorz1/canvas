@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="./mp4box.all.js"></script>
+  </head>
+  <body>
+    <button id="btn">合成</button>
+    <script>
+      window.onload = function () {
+        const btn = document.getElementById("btn");
+
+        const mp4Box = MP4Box.createFile();
+        mp4Box.setExtractionOptions;
+        console.log(mp4Box);
+
+        // 这个是额外的处理方法，不需要关心里面的细节
+        const getExtradata = () => {
+          // 生成VideoDecoder.configure需要的description信息
+          const entry = mp4Box.moov.traks[0].mdia.minf.stbl.stsd.entries[0];
+
+          const box = entry.avcC ?? entry.hvcC ?? entry.vpcC;
+          if (box != null) {
+            const stream = new DataStream(undefined, 0, DataStream.BIG_ENDIAN);
+            box.write(stream);
+            // slice()方法的作用是移除moov box的header信息
+            return new Uint8Array(stream.buffer.slice(8));
+          }
+        };
+
+        let videoTrack = null;
+        let videoDecoder = null;
+
+        const videoFrames = [];
+
+        let nbSamplesTotal = 0;
+        let countSample = 0;
+
+        mp4Box.onReady = function (info) {
+          console.log("ready", info);
+          videoTrack = info.tracks[0];
+          if (videoTrack !== null) {
+            mp4Box.setExtractionOptions(videoTrack.id, "video", {
+              nbSamples: 100,
+            });
+          }
+
+          const videoW = videoTrack.track_width;
+          const videoH = videoTrack.track_height;
+
+          videoDecoder = new VideoDecoder({
+            output: (videoFrame) => {
+              createImageBitmap(videoFrame).then((img) => {
+                videoFrames.push({
+                  img,
+                  duration: videoFrame.duration,
+                  timestamp: videoFrame.timestamp,
+                });
+                videoFrame.close();
+              });
+            },
+            error: (error) => {
+              console.error("videoDecoder错误: ", err);
+            },
+          });
+
+          nbSamplesTotal = videoTrack.nb_samples;
+
+          videoDecoder.configure({
+            codec: videoTrack.codec,
+            codedWidth: videoW,
+            codedHeight: videoH,
+            description: getExtradata(),
+          });
+
+          mp4Box.start();
+        };
+
+        mp4Box.onSamples = function (trackId, user, samples) {
+          console.log(trackId, user, samples.length);
+          if (videoTrack.id === trackId) {
+            mp4Box.stop();
+
+            countSample += samples.length;
+
+            for (const sample of samples) {
+              const type = sample.is_sync ? "key" : "delta";
+              const chunk = new EncodedVideoChunk({
+                type,
+                timestamp: sample.cts,
+                duration: sample.duration,
+                data: sample.data,
+              });
+
+              videoDecoder.decode(chunk);
+            }
+            if (countSample === nbSamplesTotal) {
+              console.log("flush");
+              videoDecoder.flush();
+            }
+          }
+        };
+
+        fetch("./rains-s.mp4")
+          .then((res) => res.arrayBuffer())
+          .then((buffer) => {
+            buffer.fileStart = 0;
+            mp4Box.appendBuffer(buffer);
+            mp4Box.flush();
+            // mp4Box的流程为 onReady -> onSamples -> samples.forEach(() => { videoDecoder.decode(chunk) -> videoDecoder.flush() -> output }) 拿到 videoFrames
+          });
+
+        btn.addEventListener("click", () => {
+          if (!videoFrames.length) {
+            alert("视频解码未完成");
+            return;
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = videoTrack.track_width;
+          canvas.height = videoTrack.track_height;
+          document.body.appendChild(canvas);
+
+          const ctx = canvas.getContext("2d");
+          let index = 0;
+
+          const draw = () => {
+            const { img, duration, timestamp } = videoFrames[index];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "source-over";
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = "screen";
+
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            index++;
+
+            if (index === videoFrames.length) {
+              // 重新开始，视频一直播放或者暂停
+              index = 0;
+              // return
+            }
+            setTimeout(draw, duration / 100);
+            // requestAnimationFrame(draw)
+          };
+
+          const bgImg = new Image();
+          bgImg.src = "./bg.jpg";
+
+          bgImg.onload = () => {
+            draw();
+          };
+        });
+      };
+    </script>
+  </body>
+</html>
