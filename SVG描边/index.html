@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      .svg {
+        stroke: red;
+        stroke-width: 3;
+        stroke-linecap: round;
+
+        stroke-dasharray: var(--svg-l);
+        stroke-dashoffset: var(--svg-l);
+
+        animation: stroke-dash 3s linear forwards;
+      }
+
+      @keyframes stroke-dash {
+        from {
+          stroke-dashoffset: var(--svg-l);
+        }
+        to {
+          stroke-dashoffset: var(--svg-progress, 0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="200" height="200" class="svg-container">
+      <line class="svg" x1="10" y1="10" x2="100" y2="10" />
+      <rect
+        class="svg"
+        x="10"
+        y="30"
+        width="100"
+        height="20"
+        fill="transparent"
+      />
+      <circle class="svg" cx="40" cy="100" r="30" fill="transparent" />
+    </svg>
+
+    <svg width="200" height="200" class="svg-container">
+      <path
+        d="M 10,100 A 30,30 0 0,1 70,100"
+        fill="none"
+        stroke-width="5"
+        stroke="#ccc"
+        stroke-linecap="round"
+      />
+      <path
+        d="M 10,100 A 30,30 0 0,1 70,100"
+        fill="none"
+        class="svg progress"
+      />
+    </svg>
+
+    <script>
+      const svgs = document.querySelectorAll(".svg");
+
+      svgs.forEach((svg) => {
+        const svgLength = svg.getTotalLength();
+        if (svg.classList.contains("progress")) {
+          svg.style.setProperty("--svg-l", svgLength);
+          // 如果只想让半圆进度为 30%，则设置为 svgLength * (1 - 0.3), 比如一开始 offset 是 200， 那么进度为 30%, 也就是描边 30% = 60， 所以我们要让 offset 移动 60 的距离，也就是 200 - 60 = 140
+          svg.style.setProperty("--svg-progress", svgLength * 0.7);
+        } else {
+          svg.style.setProperty("--svg-l", svgLength);
+        }
+      });
+    </script>
+  </body>
+</html>
